@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Listing — RUET BookSwap</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="index.html">RUET BookSwap</a>
+  <nav id="nav-links"></nav>
+</div>
+
+<div class="container" id="content">
+  <p>Loading…</p>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+renderNav();
+
+const params = new URLSearchParams(window.location.search);
+const listingId = params.get('id');
+const content = document.getElementById('content');
+
+async function loadListing() {
+  if (!listingId) {
+    content.innerHTML = '<p>No listing specified.</p>';
+    return;
+  }
+
+  try {
+    const data = await apiCall(`/listings/${listingId}`);
+    const listing = data.listing;
+
+    const photosHtml = (listing.photos && listing.photos.length)
+      ? listing.photos.map(p => `<img src="http://localhost:5000/uploads/${p}" alt="${listing.title}">`).join('')
+      : '<div class="photo" style="height:220px;border-radius:6px;background:#ece4d3;"></div>';
+
+    const priceLine = listing.type === 'sale'
+      ? `<p style="font-size:1.3rem;">৳${listing.price}</p>`
+      : `<p style="font-size:1.1rem;text-transform:capitalize;">${listing.type}</p>`;
+
+    content.innerHTML = `
+      <div class="detail-grid">
+        <div class="detail-photos">${photosHtml}</div>
+        <div>
+          <div class="course">${listing.courseCode} · ${listing.department} · ${listing.semester || ''}</div>
+          <h1>${listing.title}</h1>
+          <p style="color:#5c554a;">${listing.author || ''} ${listing.edition ? '· ' + listing.edition + ' edition' : ''}</p>
+          <span class="tag ${listing.type}">${listing.type}</span>
+          ${priceLine}
+          <p><strong>Condition:</strong> ${listing.condition}</p>
+          <p><strong>Status:</strong> ${listing.status}</p>
+
+          <div class="contact-box" id="contact-box">
+            <button id="reveal-btn">Tap to reveal seller contact</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('reveal-btn').addEventListener('click', () => {
+      document.getElementById('contact-box').innerHTML = `
+        <p style="margin:0;"><strong>Contact number:</strong> ${listing.sellerPhone || 'Not provided'}</p>
+        <p style="margin:6px 0 0;color:#5c554a;font-size:0.9rem;">Agree on a time and campus location to meet.</p>
+      `;
+    });
+
+  } catch (err) {
+    content.innerHTML = `<p>Could not load this listing: ${err.message}</p>`;
+  }
+}
+
+loadListing();
+</script>
+
+</body>
+</html>

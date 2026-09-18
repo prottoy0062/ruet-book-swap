@@ -1,0 +1,247 @@
+/* css/style.css */
+/* RUET BookSwap — visual identity:
+   Warm paper background + deep forest green accent, evoking a campus
+   secondhand bookstore rather than a generic SaaS app. */
+
+:root {
+  --paper: #f6f1e7;
+  --paper-dark: #ece4d3;
+  --ink: #2b2620;
+  --ink-soft: #5c554a;
+  --forest: #1f4d3d;
+  --forest-dark: #163a2e;
+  --clay: #b5502f;
+  --line: #d8cdb6;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Georgia', 'Iowan Old Style', serif;
+  line-height: 1.5;
+}
+
+h1, h2, h3 {
+  font-family: 'Georgia', serif;
+  font-weight: normal;
+  letter-spacing: 0.2px;
+  margin: 0 0 0.4em 0;
+}
+
+a { color: var(--forest); }
+
+/* ---------- Top bar ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.topbar .brand {
+  font-size: 1.4rem;
+  color: var(--forest-dark);
+  text-decoration: none;
+}
+
+.topbar nav a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.topbar nav a:hover { color: var(--forest); }
+
+/* ---------- Layout containers ---------- */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 36px 24px 64px;
+}
+
+.narrow {
+  max-width: 480px;
+}
+
+/* ---------- Forms ---------- */
+.card {
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px;
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin: 16px 0 6px;
+}
+
+label:first-child { margin-top: 0; }
+
+input, select, textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--ink);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--forest);
+  outline-offset: 1px;
+}
+
+button, .btn {
+  display: inline-block;
+  margin-top: 22px;
+  padding: 11px 22px;
+  background: var(--forest);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+button:hover, .btn:hover { background: var(--forest-dark); }
+
+button.secondary {
+  background: transparent;
+  color: var(--forest);
+  border: 1px solid var(--forest);
+}
+
+button.secondary:hover { background: var(--paper-dark); }
+
+.error-text {
+  color: var(--clay);
+  font-size: 0.9rem;
+  margin-top: 10px;
+  min-height: 1.2em;
+}
+
+.success-text {
+  color: var(--forest);
+  font-size: 0.9rem;
+  margin-top: 10px;
+  min-height: 1.2em;
+}
+
+/* ---------- Search bar ---------- */
+.search-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.search-row input { flex: 1; }
+.search-row button { margin-top: 0; }
+
+/* ---------- Listing grid ---------- */
+.listing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.listing-card {
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--ink);
+  display: block;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.listing-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(43, 38, 32, 0.1);
+}
+
+.listing-card .photo {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  background: var(--paper-dark);
+  display: block;
+}
+
+.listing-card .body { padding: 14px; }
+
+.listing-card .course {
+  font-size: 0.78rem;
+  color: var(--forest);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.listing-card .title {
+  font-size: 1.05rem;
+  margin: 4px 0;
+}
+
+.listing-card .meta {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-top: 6px;
+}
+
+.tag.sale { background: #e5efe8; color: var(--forest-dark); }
+.tag.exchange { background: #f2e6da; color: var(--clay); }
+.tag.donation { background: #e6e9f2; color: #3a4a8c; }
+
+/* ---------- Detail page ---------- */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+@media (max-width: 700px) {
+  .detail-grid { grid-template-columns: 1fr; }
+  .topbar { padding: 14px 18px; flex-direction: column; gap: 10px; }
+  .topbar nav a { margin: 0 10px; }
+}
+
+.detail-photos img {
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  margin-bottom: 10px;
+}
+
+.contact-box {
+  background: var(--paper-dark);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-top: 20px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--ink-soft);
+}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RUET BookSwap</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="index.html">RUET BookSwap</a>
+  <nav id="nav-links"></nav>
+</div>
+
+<div class="container">
+  <h1>Find your course books</h1>
+
+  <div class="search-row">
+    <select id="search-course"></select>
+    <input type="text" id="search-dept" placeholder="Department (optional)">
+    <button id="search-btn">Search</button>
+  </div>
+
+  <div id="listing-grid" class="listing-grid"></div>
+  <div id="empty" class="empty-state" style="display:none;">
+    No listings found. Try a different search, or
+    <a href="create-listing.html">list a book yourself</a>.
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/courses.js"></script>
+<script>
+renderNav();
+populateCourseDropdown(document.getElementById('search-course'), true);
+
+async function loadListings() {
+  const course = document.getElementById('search-course').value.trim();
+  const dept = document.getElementById('search-dept').value.trim();
+
+  const params = new URLSearchParams();
+  if (course) params.set('courseCode', course);
+  if (dept) params.set('department', dept);
+
+  const grid = document.getElementById('listing-grid');
+  const empty = document.getElementById('empty');
+  grid.innerHTML = '';
+  empty.style.display = 'none';
+
+  try {
+    const data = await apiCall('/listings?' + params.toString());
+
+    if (data.listings.length === 0) {
+      empty.style.display = 'block';
+      return;
+    }
+
+    data.listings.forEach((listing) => {
+      const card = document.createElement('a');
+      card.href = `listing-detail.html?id=${listing._id}`;
+      card.className = 'listing-card';
+
+      const photoUrl = listing.photos && listing.photos.length
+        ? `http://localhost:5000/uploads/${listing.photos[0]}`
+        : '';
+
+      card.innerHTML = `
+        ${photoUrl
+          ? `<img class="photo" src="${photoUrl}" alt="${listing.title}">`
+          : `<div class="photo"></div>`}
+        <div class="body">
+          <div class="course">${listing.courseCode} · ${listing.department}</div>
+          <div class="title">${listing.title}</div>
+          <div class="meta">${listing.condition} condition</div>
+          <span class="tag ${listing.type}">${listing.type}${listing.type === 'sale' && listing.price ? ' · ৳' + listing.price : ''}</span>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  } catch (err) {
+    empty.textContent = 'Could not load listings: ' + err.message;
+    empty.style.display = 'block';
+  }
+}
+
+document.getElementById('search-btn').addEventListener('click', loadListings);
+document.getElementById('search-course').addEventListener('change', loadListings);
+document.getElementById('search-course').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') loadListings();
+});
+
+loadListings();
+</script>
+
+</body>
+</html>

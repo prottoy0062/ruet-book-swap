@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>List a book — RUET BookSwap</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="index.html">RUET BookSwap</a>
+  <nav id="nav-links"></nav>
+</div>
+
+<div class="container narrow">
+  <h1>List a book</h1>
+
+  <div class="card">
+    <form id="listing-form">
+      <label for="title">Book title</label>
+      <input type="text" id="title" required>
+
+      <label for="author">Author</label>
+      <input type="text" id="author">
+
+      <label for="edition">Edition</label>
+      <input type="text" id="edition">
+
+      <label for="courseCode">Course code</label>
+      <select id="courseCode" required></select>
+
+      <label for="department">Department</label>
+      <input type="text" id="department" placeholder="e.g. CSE" required>
+
+      <label for="semester">Semester</label>
+      <input type="text" id="semester" placeholder="e.g. 2nd Year Odd">
+
+      <label for="condition">Condition</label>
+      <select id="condition">
+        <option value="New">New</option>
+        <option value="Good" selected>Good</option>
+        <option value="Worn">Worn</option>
+      </select>
+
+      <label for="type">Listing type</label>
+      <select id="type">
+        <option value="sale">Sale</option>
+        <option value="exchange">Exchange</option>
+        <option value="donation">Donation</option>
+      </select>
+
+      <div id="price-field">
+        <label for="price">Price (৳)</label>
+        <input type="number" id="price" min="0">
+      </div>
+
+      <label for="photos">Photos (up to 4)</label>
+      <input type="file" id="photos" accept="image/*" multiple>
+
+      <button type="submit">Publish listing</button>
+      <div class="error-text" id="form-error"></div>
+      <div class="success-text" id="form-success"></div>
+    </form>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/courses.js"></script>
+<script>
+renderNav();
+populateCourseDropdown(document.getElementById('courseCode'));
+
+// Auto-fill department based on the selected course's subject prefix (CSE/EEE/Math/etc.)
+document.getElementById('courseCode').addEventListener('change', (e) => {
+  const course = RUET_CSE_COURSES.find(c => c.code === e.target.value);
+  if (course) {
+    const prefix = course.code.split(' ')[0]; // e.g. "CSE", "EEE", "Math"
+    document.getElementById('department').value = prefix;
+    document.getElementById('semester').value = `${course.year} ${course.semester}`;
+  }
+});
+
+// Guard: must be logged in to see this page
+if (!isLoggedIn()) {
+  window.location.href = 'login.html';
+}
+
+document.getElementById('type').addEventListener('change', (e) => {
+  document.getElementById('price-field').style.display =
+    e.target.value === 'sale' ? 'block' : 'none';
+});
+
+document.getElementById('listing-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errorBox = document.getElementById('form-error');
+  const successBox = document.getElementById('form-success');
+  errorBox.textContent = '';
+  successBox.textContent = '';
+
+  const formData = new FormData();
+  formData.append('title', document.getElementById('title').value.trim());
+  formData.append('author', document.getElementById('author').value.trim());
+  formData.append('edition', document.getElementById('edition').value.trim());
+  formData.append('courseCode', document.getElementById('courseCode').value.trim());
+  formData.append('department', document.getElementById('department').value.trim());
+  formData.append('semester', document.getElementById('semester').value.trim());
+  formData.append('condition', document.getElementById('condition').value);
+  formData.append('type', document.getElementById('type').value);
+  formData.append('price', document.getElementById('price').value || 0);
+
+  const files = document.getElementById('photos').files;
+  for (let i = 0; i < files.length; i++) {
+    formData.append('photos', files[i]);
+  }
+
+  try {
+    const data = await apiCall('/listings', {
+      method: 'POST',
+      body: formData,
+      isFormData: true,
+      auth: true,
+    });
+    successBox.textContent = 'Listing published!';
+    setTimeout(() => {
+      window.location.href = `listing-detail.html?id=${data.listing._id}`;
+    }, 800);
+  } catch (err) {
+    errorBox.textContent = err.message;
+  }
+});
+</script>
+
+</body>
+</html>
