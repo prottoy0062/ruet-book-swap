@@ -15,16 +15,15 @@ app.use(express.json());   // allows server to read JSON sent in requests
 
 // ---- Routes ----
 const authRoutes = require('./routes/authRoutes');
-app.use('/api/auth', authRoutes); // e.g. POST http://localhost:5000/api/auth/register
+app.use('/api/auth', authRoutes);
 
 const listingRoutes = require('./routes/listingRoutes');
-app.use('/api/listings', listingRoutes); // e.g. GET http://localhost:5000/api/listings
+app.use('/api/listings', listingRoutes);
 
-// Serve uploaded photos as static files, e.g. http://localhost:5000/uploads/xyz.jpg
+// Serve uploaded photos as static files
+// Example:
+// https://ruet-book-swap.onrender.com/uploads/xyz.jpg
 app.use('/uploads', express.static(require('path').join(__dirname, 'uploads')));
-
-// Serve the frontend (HTML/CSS/JS) so the whole site runs from this one server
-app.use(express.static(require('path').join(__dirname, '..', 'frontend')));
 
 // ---- Connect to MongoDB ----
 const PORT = process.env.PORT || 5000;
@@ -33,6 +32,7 @@ const MONGODB_URI = process.env.MONGODB_URI;
 mongoose.connect(MONGODB_URI)
   .then(() => {
     console.log('MongoDB connected successfully');
+
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);
     });
