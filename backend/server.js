@@ -26,11 +26,6 @@ app.use('/uploads', express.static(require('path').join(__dirname, 'uploads')));
 // Serve the frontend (HTML/CSS/JS) so the whole site runs from this one server
 app.use(express.static(require('path').join(__dirname, '..', 'frontend')));
 
-// Express root URL-e (/) hit korle automatic frontend/index.html render/redirect korbe
-app.get('/', (req, res) => {
-  res.redirect('/frontend/index.html');
-});
-
 // ---- Connect to MongoDB ----
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
