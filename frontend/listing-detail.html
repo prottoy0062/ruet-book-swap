@@ -36,7 +36,7 @@ async function loadListing() {
     const listing = data.listing;
 
     const photosHtml = (listing.photos && listing.photos.length)
-      ? listing.photos.map(p => `<img src="http://localhost:5000/uploads/${p}" alt="${listing.title}">`).join('')
+      ? listing.photos.map(p => `<img src="https://ruet-book-swap.onrender.com/uploads/${p}" alt="${listing.title}">`).join('')
       : '<div class="photo" style="height:220px;border-radius:6px;background:#ece4d3;"></div>';
 
     const priceLine = listing.type === 'sale'
