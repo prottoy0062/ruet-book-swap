@@ -1,6 +1,7 @@
 // routes/listingRoutes.js
 const express = require('express');
 const router = express.Router();
+const cloudinary = require('cloudinary').v2;
 const BookListing = require('../models/BookListing');
 const User = require('../models/User');
 const requireAuth = require('../middleware/authMiddleware');
@@ -27,7 +28,28 @@ router.post('/', requireAuth, upload.array('photos', 4), async (req, res) => {
       return res.status(404).json({ message: 'Seller account not found' });
     }
 
-    const photoFilenames = (req.files || []).map((f) => f.filename);
+    const photoUrls = [];
+
+    for (const file of req.files || []) {
+      const result = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'ruet-book-swap',
+          },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+
+        stream.end(file.buffer);
+      });
+
+      photoUrls.push(result.secure_url);
+    }
 
     const listing = await BookListing.create({
       title,
@@ -39,7 +61,7 @@ router.post('/', requireAuth, upload.array('photos', 4), async (req, res) => {
       condition,
       type,
       price: type === 'sale' ? price : 0,
-      photos: photoFilenames,
+      photos: photoUrls,
       sellerId: seller._id,
       sellerPhone: seller.phone,
     });

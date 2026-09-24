@@ -2,7 +2,11 @@
 // Shared helpers used across every page: talking to the backend,
 // and reading/writing the logged-in user's info.
 
-const API_BASE = 'https://ruet-book-swap.onrender.com/api';
+const API_BASE =
+    (window.location.hostname === 'localhost' ||
+     window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:5000/api'
+        : 'https://ruet-book-swap.onrender.com/api';
 
 // ---- Auth token storage (in-memory + localStorage) ----
 function saveSession(token, user) {
