@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true, // no two users can have the same email
   },
+  roll: {
+    type: String,
+    trim: true,
+  },
   department: {
     type: String,
   },
