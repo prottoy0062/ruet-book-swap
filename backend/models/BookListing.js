@@ -13,6 +13,7 @@ const bookListingSchema = new mongoose.Schema({
   type: { type: String, enum: ['sale', 'exchange', 'donation'], required: true },
   price: { type: Number, default: 0 }, // only relevant if type is 'sale'
   status: { type: String, enum: ['available', 'closed'], default: 'available' },
+  soldAt: { type: Date }, // added later
   sellerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   sellerPhone: { type: String }, // stored directly for quick display, avoids extra lookups
 }, { timestamps: true });
