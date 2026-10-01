@@ -15,6 +15,10 @@ cloudinary.config({
 });
 
 const app = express();
+const path = require('path');
+const fs = require('fs');
+fs.mkdirSync(path.join(__dirname, 'uploads'), { recursive: true });
+
 
 // ---- Middleware ----
 app.use(cors());           // allows frontend (different origin) to call this backend
@@ -26,6 +30,9 @@ app.use('/api/auth', authRoutes);
 
 const listingRoutes = require('./routes/listingRoutes');
 app.use('/api/listings', listingRoutes);
+
+const reviewRoutes = require('./routes/reviewRoutes');
+app.use('/api/reviews', reviewRoutes);
 
 // Serve uploaded photos as static files
 // Example:
