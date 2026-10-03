@@ -1,81 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Listing — RUET BookSwap</title>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listing — RUET BookSwap</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
+  <div class="topbar">
+    <a class="brand" href="index.html">RUET BookSwap</a>
+    <nav id="nav-links"></nav>
+  </div>
 
-<div class="topbar">
-  <a class="brand" href="index.html">RUET BookSwap</a>
-  <nav id="nav-links"></nav>
-</div>
+  <div class="container" id="content">
+    <p>Loading…</p>
+  </div>
 
-<div class="container" id="content">
-  <p>Loading…</p>
-</div>
+  <script src="js/api.js"></script>
+  <script>
+    renderNav();
+    const params = new URLSearchParams(window.location.search);
+    const listingId = params.get('id');
+    const content = document.getElementById('content');
+    const esc = (value) => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c]));
 
-<script src="js/api.js"></script>
-<script>
-renderNav();
+    async function loadReviews(sellerId) {
+      try {
+        const data = await apiCall(`/reviews/seller/${sellerId}`);
+        const box = document.getElementById('review-list');
+        if (!data.reviews.length) {
+          box.innerHTML = '<p class="muted">No reviews yet.</p>';
+          return;
+        }
+        box.innerHTML = data.reviews.map(r => `
+      <div class="review-item">
+        <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+        <strong>${esc(r.buyerId?.name || 'Buyer')}${r.buyerId?.roll ? ` · Roll ${esc(r.buyerId.roll)}` : ''}</strong>
+        <div>${esc(r.comment || 'No written comment.')}</div>
+      </div>`).join('');
+      } catch (err) {
+        document.getElementById('review-list').innerHTML = `<p class="error-text">${esc(err.message)}</p>`;
+      }
+    }
 
-const params = new URLSearchParams(window.location.search);
-const listingId = params.get('id');
-const content = document.getElementById('content');
+    async function loadListing() {
+      if (!listingId) { content.innerHTML = '<p>No listing specified.</p>'; return; }
+      try {
+        const data = await apiCall(`/listings/${listingId}`);
+        const listing = data.listing;
+        const seller = listing.sellerId;
+        const isOwner = getUser()?.id && seller?._id === getUser().id;
+        const sold = listing.status === 'sold' || listing.status === 'closed';
+        const photosHtml = listing.photos?.length
+          ? listing.photos.map(p => `<img src="${esc(p)}" alt="${esc(listing.title)}">`).join('')
+          : '<div class="photo" style="height:220px;border-radius:6px;background:#ece4d3;"></div>';
 
-async function loadListing() {
-  if (!listingId) {
-    content.innerHTML = '<p>No listing specified.</p>';
-    return;
-  }
+        const priceLine = listing.type === 'sale' ? `<p style="font-size:1.3rem;">৳${esc(listing.price)}</p>` : `<p style="font-size:1.1rem;text-transform:capitalize;">${esc(listing.type)}</p>`;
+        const statusTag = sold ? '<span class="tag sold">SOLD</span>' : `<span class="tag ${esc(listing.type)}">${esc(listing.type)}</span>`;
+        const buyButton = (!isOwner && !sold && listing.type === 'sale' && isLoggedIn()) ? '<button id="buy-btn">Request to buy</button>' : '';
+        const loginHint = (!isLoggedIn() && !sold && listing.type === 'sale') ? '<p class="muted">Log in to request this book.</p>' : '';
 
-  try {
-    const data = await apiCall(`/listings/${listingId}`);
-    const listing = data.listing;
-
-    const photosHtml = (listing.photos && listing.photos.length)
-      ? listing.photos.map(p => `<img src="${p}" alt="${listing.title}">`).join('')
-      : '<div class="photo" style="height:220px;border-radius:6px;background:#ece4d3;"></div>';
-
-    const priceLine = listing.type === 'sale'
-      ? `<p style="font-size:1.3rem;">৳${listing.price}</p>`
-      : `<p style="font-size:1.1rem;text-transform:capitalize;">${listing.type}</p>`;
-
-    content.innerHTML = `
+        content.innerHTML = `
       <div class="detail-grid">
         <div class="detail-photos">${photosHtml}</div>
         <div>
-          <div class="course">${listing.courseCode} · ${listing.department} · ${listing.semester || ''}</div>
-          <h1>${listing.title}</h1>
-          <p style="color:#5c554a;">${listing.author || ''} ${listing.edition ? '· ' + listing.edition + ' edition' : ''}</p>
-          <span class="tag ${listing.type}">${listing.type}</span>
+          <div class="course">${esc(listing.courseCode)} · ${esc(listing.department)} · ${esc(listing.semester || '')}</div>
+          <h1>${esc(listing.title)}</h1>
+          <p class="muted">${esc(listing.author || '')} ${listing.edition ? '· ' + esc(listing.edition) + ' edition' : ''}</p>
+          ${statusTag}
           ${priceLine}
-          <p><strong>Condition:</strong> ${listing.condition}</p>
-          <p><strong>Status:</strong> ${listing.status}</p>
+          <p><strong>Condition:</strong> ${esc(listing.condition)}</p>
+
+          <div class="seller-box">
+            <strong>Seller</strong>
+            <div>${esc(seller?.name || 'Unknown')}${seller?.roll ? ` · Roll ${esc(seller.roll)}` : ''}</div>
+            <div class="muted">${esc(seller?.department || '')}${seller?.year ? ` · ${esc(seller.year)} year` : ''}</div>
+            <div class="muted">Rating: ${seller?.rating ? `★ ${Number(seller.rating).toFixed(1)}/5` : 'No ratings yet'}</div>
+          </div>
+
+          ${buyButton}${loginHint}
+          ${isOwner ? `<div class="card-actions"><button id="sold-btn" class="secondary">${sold ? 'Mark available' : 'Mark sold'}</button><button id="delete-btn" class="danger-btn">Delete listing</button></div>` : ''}
 
           <div class="contact-box" id="contact-box">
-            <button id="reveal-btn">Tap to reveal seller contact</button>
+            ${sold ? '<p style="margin:0;">This book has been sold.</p>' : '<button id="reveal-btn">Tap to reveal seller contact</button>'}
           </div>
         </div>
       </div>
+
+      <section class="dashboard-section" style="margin-top:42px;">
+        <h2>Seller reviews</h2>
+        <div id="review-list"><p class="muted">Loading reviews…</p></div>
+      </section>
     `;
 
-    document.getElementById('reveal-btn').addEventListener('click', () => {
-      document.getElementById('contact-box').innerHTML = `
-        <p style="margin:0;"><strong>Contact number:</strong> ${listing.sellerPhone || 'Not provided'}</p>
-        <p style="margin:6px 0 0;color:#5c554a;font-size:0.9rem;">Agree on a time and campus location to meet.</p>
-      `;
-    });
+        if (document.getElementById('buy-btn')) {
+          document.getElementById('buy-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('buy-btn');
+            btn.disabled = true;
+            try {
+              await apiCall(`/listings/${listingId}/buy-request`, { method: 'POST', auth: true });
+              btn.textContent = 'Request sent';
+            } catch (err) {
+              btn.disabled = false;
+              alert(err.message);
+            }
+          });
+        }
 
-  } catch (err) {
-    content.innerHTML = `<p>Could not load this listing: ${err.message}</p>`;
-  }
-}
+        if (document.getElementById('reveal-btn')) {
+          document.getElementById('reveal-btn').addEventListener('click', () => {
+            document.getElementById('contact-box').innerHTML = `<p style="margin:0;"><strong>Contact number:</strong> ${esc(listing.sellerPhone || seller?.phone || 'Not provided')}</p><p class="muted">Agree on a time and campus location to meet.</p>`;
+          });
+        }
 
-loadListing();
-</script>
+        if (document.getElementById('sold-btn')) {
+          document.getElementById('sold-btn').addEventListener('click', async () => {
+            const next = sold ? 'available' : 'sold';
+            try { await apiCall(`/listings/${listingId}/status`, { method: 'PATCH', body: { status: next }, auth: true }); loadListing(); }
+            catch (err) { alert(err.message); }
+          });
+        }
+        if (document.getElementById('delete-btn')) {
+          document.getElementById('delete-btn').addEventListener('click', async () => {
+            if (!confirm('Delete this listing?')) return;
+            try { await apiCall(`/listings/${listingId}`, { method: 'DELETE', auth: true }); window.location.href = 'dashboard.html'; }
+            catch (err) { alert(err.message); }
+          });
+        }
 
+        loadReviews(seller?._id);
+      } catch (err) {
+        content.innerHTML = `<p>Could not load this listing: ${esc(err.message)}</p>`;
+      }
+    }
+
+    loadListing();
+  </script>
 </body>
+
 </html>
