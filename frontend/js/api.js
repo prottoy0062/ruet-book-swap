@@ -3,10 +3,10 @@
 // and reading/writing the logged-in user's info.
 
 const API_BASE =
-    (window.location.hostname === 'localhost' ||
-     window.location.hostname === '127.0.0.1')
-        ? 'http://localhost:5000/api'
-        : 'https://ruet-book-swap.onrender.com/api';
+  (window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:5000/api'
+    : 'https://ruet-book-swap.onrender.com/api';
 
 // ---- Auth token storage (in-memory + localStorage) ----
 function saveSession(token, user) {
@@ -31,6 +31,16 @@ function logout() {
 
 function isLoggedIn() {
   return !!getToken();
+}
+
+function resolvePhotoUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  if (url.startsWith('/uploads/')) {
+    const base = API_BASE.replace(/\/api$/, '');
+    return base + url;
+  }
+  return url;
 }
 
 // ---- Generic API call helper ----
@@ -62,6 +72,7 @@ function renderNav() {
     nav.innerHTML = `
       <a href="index.html">Browse</a>
       <a href="create-listing.html">List a book</a>
+      <a href="dashboard.html">My BookSwap</a>
       <span style="margin-left:20px;color:#5c554a;">${user.name}</span>
       <a href="#" id="logout-link">Logout</a>
     `;
@@ -77,7 +88,4 @@ function renderNav() {
     `;
   }
 }
-
-
-
 
