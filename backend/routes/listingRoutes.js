@@ -4,63 +4,55 @@ const router = express.Router();
 const cloudinary = require('cloudinary').v2;
 const BookListing = require('../models/BookListing');
 const User = require('../models/User');
+const BuyRequest = require('../models/BuyRequest');
+const Transaction = require('../models/Transaction');
+const Review = require('../models/Review');
+const fs = require('fs');
+const path = require('path');
 const requireAuth = require('../middleware/authMiddleware');
 const upload = require('../utils/upload');
 
-// ---------------------------------------------
-// POST /api/listings
-// Requires login. Creates a new book listing, with up to 4 photos.
-// Frontend sends this as multipart/form-data (not JSON) because of the files.
-// ---------------------------------------------
+// Create a listing.
 router.post('/', requireAuth, upload.array('photos', 4), async (req, res) => {
   try {
-    const {
-      title, author, edition, courseCode, department,
-      semester, condition, type, price,
-    } = req.body;
-
+    const { title, author, edition, courseCode, department, semester, condition, type, price } = req.body;
     if (!title || !courseCode || !department || !type) {
       return res.status(400).json({ message: 'Title, course code, department, and type are required' });
     }
 
     const seller = await User.findById(req.user.userId);
-    if (!seller) {
-      return res.status(404).json({ message: 'Seller account not found' });
-    }
+    if (!seller) return res.status(404).json({ message: 'Seller account not found' });
 
     const photoUrls = [];
-
     for (const file of req.files || []) {
-      const result = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          {
-            folder: 'ruet-book-swap',
-          },
-          (error, result) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(result);
-            }
-          }
-        );
+      // Use Cloudinary when it is configured; otherwise save locally so the
+      // project works immediately in local development without Cloudinary keys.
+      const hasCloudinary = Boolean(
+        process.env.CLOUDINARY_CLOUD_NAME &&
+        process.env.CLOUDINARY_API_KEY &&
+        process.env.CLOUDINARY_API_SECRET
+      );
 
-        stream.end(file.buffer);
-      });
-
-      photoUrls.push(result.secure_url);
+      if (hasCloudinary) {
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream({ folder: 'ruet-book-swap' }, (error, result) => {
+            if (error) reject(error); else resolve(result);
+          });
+          stream.end(file.buffer);
+        });
+        photoUrls.push(result.secure_url);
+      } else {
+        const uploadsDir = path.join(__dirname, '..', 'uploads');
+        fs.mkdirSync(uploadsDir, { recursive: true });
+        const safeName = `${Date.now()}-${Math.random().toString(36).slice(2)}-${file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+        fs.writeFileSync(path.join(uploadsDir, safeName), file.buffer);
+        photoUrls.push(`/uploads/${safeName}`);
+      }
     }
 
     const listing = await BookListing.create({
-      title,
-      author,
-      edition,
-      courseCode,
-      department,
-      semester,
-      condition,
-      type,
-      price: type === 'sale' ? price : 0,
+      title, author, edition, courseCode, department, semester, condition, type,
+      price: type === 'sale' ? Number(price || 0) : 0,
       photos: photoUrls,
       sellerId: seller._id,
       sellerPhone: seller.phone,
