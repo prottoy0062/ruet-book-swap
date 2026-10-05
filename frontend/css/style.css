@@ -118,17 +118,21 @@ a:hover {
 
 /* ---------- Forms ---------- */
 .card {
-  background: #fffdf8;
-  border: 1px solid var(--line);
+  background: var(--card);
+  border: 1.5px solid var(--ink);
   border-radius: var(--radius);
   padding: 28px;
+  box-shadow: var(--shadow);
 }
 
 label {
   display: block;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--ink-soft);
-  margin: 16px 0 6px;
+  margin: 18px 0 6px;
 }
 
 label:first-child {
@@ -142,17 +146,24 @@ textarea {
   padding: 10px 12px;
   font-family: inherit;
   font-size: 1rem;
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--line);
   border-radius: var(--radius);
-  background: #fff;
+  background: #fffdf5;
   color: var(--ink);
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-  outline: 2px solid var(--forest);
-  outline-offset: 1px;
+  outline: none;
+  border-color: var(--forest);
+  box-shadow: 0 0 0 3px rgba(29, 74, 58, 0.18);
+}
+
+input[type="file"] {
+  padding: 8px;
+  background: transparent;
+  border-style: dashed;
 }
 
 button,
@@ -162,32 +173,49 @@ button,
   padding: 11px 22px;
   background: var(--forest);
   color: #fff;
-  border: none;
+  border: 1.5px solid var(--forest-deep);
   border-radius: var(--radius);
-  font-size: 1rem;
-  font-family: inherit;
+  font: 600 0.95rem var(--body);
   cursor: pointer;
   text-decoration: none;
+  box-shadow: 2px 2px 0 var(--forest-deep);
+  transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
 }
 
 button:hover,
 .btn:hover {
-  background: var(--forest-dark);
+  background: var(--forest-deep);
+  color: #fff;
+}
+
+button:active,
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 button.secondary {
   background: transparent;
   color: var(--forest);
-  border: 1px solid var(--forest);
+  border-color: var(--forest);
+  box-shadow: none;
 }
 
 button.secondary:hover {
   background: var(--paper-dark);
+  color: var(--forest-deep);
 }
 
 .error-text {
   color: var(--clay);
   font-size: 0.9rem;
+  font-weight: 500;
   margin-top: 10px;
   min-height: 1.2em;
 }
@@ -195,9 +223,11 @@ button.secondary:hover {
 .success-text {
   color: var(--forest);
   font-size: 0.9rem;
+  font-weight: 500;
   margin-top: 10px;
   min-height: 1.2em;
 }
+
 
 /* ---------- Search bar ---------- */
 .search-row {
