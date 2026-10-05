@@ -27,25 +27,26 @@
 
 body {
   margin: 0;
-  background: var(--paper);
+  background-color: var(--paper);
+  /* faint ruled-card lines */
+  background-image: repeating-linear-gradient(transparent 0 31px, rgba(29, 74, 58, 0.05) 31px 32px);
   color: var(--ink);
-  font-family: 'Georgia', 'Iowan Old Style', serif;
-  line-height: 1.5;
+  font-family: var(--body);
+  line-height: 1.55;
 }
 
-h1,
-h2,
-h3 {
-  font-family: 'Georgia', serif;
-  font-weight: normal;
-  letter-spacing: 0.2px;
-  margin: 0 0 0.4em 0;
+h1, h2, h3 {
+  font-family: var(--display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin: 0 0 0.4em;
 }
 
-a {
-  color: var(--forest);
-}
+a { color: var(--forest); text-underline-offset: 3px; }
+a:hover { color: var(--clay); }
 
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 /* ---------- Top bar ---------- */
 .topbar {
   display: flex;
