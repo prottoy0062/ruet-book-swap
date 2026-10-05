@@ -4,15 +4,21 @@
    secondhand bookstore rather than a generic SaaS app. */
 
 :root {
-  --paper: #f6f1e7;
-  --paper-dark: #ece4d3;
-  --ink: #2b2620;
-  --ink-soft: #5c554a;
-  --forest: #1f4d3d;
-  --forest-dark: #163a2e;
-  --clay: #b5502f;
-  --line: #d8cdb6;
-  --radius: 6px;
+ --paper: #f4eddc;
+  --paper-dark: #e9dfc6;
+  --card: #fbf7ea;
+  --ink: #1f1b16;
+  --ink-soft: #62594a;
+  --forest: #1d4a3a;
+  --forest-dark: #123327;
+  --forest-deep: #123327;
+  --clay: #a8431f;
+  --gold: #c48a1a;
+  --line: #cfc2a3;
+  --radius: 4px;
+  --display: 'Fraunces', Georgia, 'Iowan Old Style', serif;
+  --body: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --shadow: 3px 3px 0 rgba(31, 27, 22, 0.12);
 }
 
 * {
