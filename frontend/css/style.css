@@ -329,6 +329,7 @@ button.secondary:hover {
   font-size: 0.85rem;
   color: var(--ink-soft);
 }
+
 /* stamped tags */
 .tag {
   display: inline-block;
@@ -520,4 +521,32 @@ button.secondary:hover {
 .danger-btn:hover {
   background: #f3dcd2;
   color: var(--clay);
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 700px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    padding: 12px 16px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .container {
+    padding: 28px 16px 56px;
+  }
+
+  .page-heading,
+  .request-card,
+  .history-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-row button {
+    width: 100%;
+  }
 }
