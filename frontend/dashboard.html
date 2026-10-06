@@ -91,6 +91,8 @@
     function requestCard(request) {
       const listing = request.listingId;
       const buyer = request.buyerId;
+      // Added kind definition
+      const kind = listing?.type || 'sale';
       return `<div class="request-card">
     <div>
       <strong>${esc(listing?.title || 'Book')}</strong>
