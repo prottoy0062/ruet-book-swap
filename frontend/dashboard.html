@@ -1,67 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My BookSwap — RUET BookSwap</title>
-<link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-<div class="topbar">
-  <a class="brand" href="index.html">RUET BookSwap</a>
-  <nav id="nav-links"></nav>
-</div>
 
-<div class="container">
-  <div class="page-heading">
-    <div>
-      <h1>My BookSwap</h1>
-      <p id="profile-line" class="muted"></p>
-    </div>
-    <a class="btn" href="create-listing.html">List another book</a>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My BookSwap — RUET BookSwap</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div class="topbar">
+    <a class="brand" href="index.html">RUET BookSwap</a>
+    <nav id="nav-links"></nav>
   </div>
 
-  <section class="dashboard-section">
-    <h2>My listed books</h2>
-    <div id="my-listings" class="listing-grid"></div>
-    <div id="no-listings" class="empty-state" style="display:none;">You have not listed any books yet.</div>
-  </section>
+  <div class="container">
+    <div class="page-heading">
+      <div>
+        <h1>My BookSwap</h1>
+        <p id="profile-line" class="muted"></p>
+      </div>
+      <a class="btn" href="create-listing.html">List another book</a>
+    </div>
+
+    <section class="dashboard-section">
+      <h2>My listed books</h2>
+      <div id="my-listings" class="listing-grid"></div>
+      <div id="no-listings" class="empty-state" style="display:none;">You have not listed any books yet.</div>
+    </section>
 
     <!-- Updated section heading and empty state text -->
-  <section class="dashboard-section">
-    <h2>Requests</h2>
-    <div id="requests"></div>
-    <div id="no-requests" class="empty-state" style="display:none;">No pending requests.</div>
-  </section>
+    <section class="dashboard-section">
+      <h2>Requests</h2>
+      <div id="requests"></div>
+      <div id="no-requests" class="empty-state" style="display:none;">No pending requests.</div>
+    </section>
 
-  <!--  Updated section heading and empty state text -->
-  <section class="dashboard-section">
-    <h2>Books I sold / exchanged / donated</h2>
-    <div id="sold-list" class="history-list"></div>
-    <div id="no-sold" class="empty-state" style="display:none;">Nothing completed yet.</div>
-  </section>
+    <!--  Updated section heading and empty state text -->
+    <section class="dashboard-section">
+      <h2>Books I sold / exchanged / donated</h2>
+      <div id="sold-list" class="history-list"></div>
+      <div id="no-sold" class="empty-state" style="display:none;">Nothing completed yet.</div>
+    </section>
 
-  <!--  Updated section heading and empty state text -->
-  <section class="dashboard-section">
-    <h2>Books I bought / exchanged / received</h2>
-    <div id="bought-list" class="history-list"></div>
-    <div id="no-bought" class="empty-state" style="display:none;">Nothing received yet.</div>
-  </section>
-</div>
+    <!--  Updated section heading and empty state text -->
+    <section class="dashboard-section">
+      <h2>Books I bought / exchanged / received</h2>
+      <div id="bought-list" class="history-list"></div>
+      <div id="no-bought" class="empty-state" style="display:none;">Nothing received yet.</div>
+    </section>
+  </div>
 
-<script src="js/api.js"></script>
-<script>
-renderNav();
-if (!isLoggedIn()) window.location.href = 'login.html';
+  <script src="js/api.js"></script>
+  <script>
+    renderNav();
+    if (!isLoggedIn()) window.location.href = 'login.html';
 
-const esc = (value) => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-const money = (value) => value ? `৳${value}` : '—';
-const dateText = (value) => new Date(value).toLocaleString('en-BD', { dateStyle: 'medium', timeStyle: 'short' });
+    const esc = (value) => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c]));
+    const money = (value) => value ? `৳${value}` : '—';
+    const dateText = (value) => new Date(value).toLocaleString('en-BD', { dateStyle: 'medium', timeStyle: 'short' });
 
-function listingCard(listing) {
-  const photo = resolvePhotoUrl(listing.photos?.[0] || '');
-  const sold = listing.status === 'sold';
-  return `
+    //  Added TYPE_TEXT object above dateText
+    const TYPE_TEXT = {
+      sale: { done: 'SOLD', mark: 'Mark sold', out: 'Sold to', in: 'Bought from' },
+      exchange: { done: 'EXCHANGED', mark: 'Mark exchanged', out: 'Exchanged with', in: 'Exchanged with' },
+      donation: { done: 'DONATED', mark: 'Mark donated', out: 'Donated to', in: 'Received from' },
+    };
+    function listingCard(listing) {
+      const photo = resolvePhotoUrl(listing.photos?.[0] || '');
+      const sold = listing.status === 'sold';
+      return `
     <div class="listing-card dashboard-card">
       ${photo ? `<img class="photo" src="${esc(photo)}" alt="${esc(listing.title)}">` : `<div class="photo"></div>`}
       <div class="body">
@@ -76,12 +84,12 @@ function listingCard(listing) {
         </div>
       </div>
     </div>`;
-}
+    }
 
-function requestCard(request) {
-  const listing = request.listingId;
-  const buyer = request.buyerId;
-  return `<div class="request-card">
+    function requestCard(request) {
+      const listing = request.listingId;
+      const buyer = request.buyerId;
+      return `<div class="request-card">
     <div>
       <strong>${esc(listing?.title || 'Book')}</strong>
       <div class="muted">Buyer: ${esc(buyer?.name)}${buyer?.roll ? ` · Roll ${esc(buyer.roll)}` : ''}</div>
@@ -92,12 +100,12 @@ function requestCard(request) {
       <button class="btn-small secondary js-request" data-id="${request._id}" data-action="reject">Reject</button>
     </div>
   </div>`;
-}
+    }
 
-function transactionRow(t, direction) {
-  const person = direction === 'sold' ? t.buyerId : t.sellerId;
-  const reviewButton = direction === 'bought' ? `<button class="btn-small secondary js-review" data-id="${t._id}">Review seller</button>` : '';
-  return `<div class="history-row">
+    function transactionRow(t, direction) {
+      const person = direction === 'sold' ? t.buyerId : t.sellerId;
+      const reviewButton = direction === 'bought' ? `<button class="btn-small secondary js-review" data-id="${t._id}">Review seller</button>` : '';
+      return `<div class="history-row">
     <div>
       <strong>${esc(t.bookTitle)}</strong>
       <div class="muted">${direction === 'sold' ? 'Bought by' : 'Bought from'}: ${esc(person?.name || 'Unknown')}${person?.roll ? ` · Roll ${esc(person.roll)}` : ''}</div>
@@ -105,71 +113,72 @@ function transactionRow(t, direction) {
     </div>
     ${reviewButton}
   </div>`;
-}
+    }
 
-async function loadDashboard() {
-  try {
-    const user = getUser();
-    document.getElementById('profile-line').textContent = `${user?.name || ''}${user?.roll ? ` · Roll ${user.roll}` : ''}${user?.department ? ` · ${user.department}` : ''}`;
+    async function loadDashboard() {
+      try {
+        const user = getUser();
+        document.getElementById('profile-line').textContent = `${user?.name || ''}${user?.roll ? ` · Roll ${user.roll}` : ''}${user?.department ? ` · ${user.department}` : ''}`;
 
-    const [dashboard, requestData] = await Promise.all([
-      apiCall('/listings/mine', { auth: true }),
-      apiCall('/listings/requests/incoming', { auth: true }),
-    ]);
+        const [dashboard, requestData] = await Promise.all([
+          apiCall('/listings/mine', { auth: true }),
+          apiCall('/listings/requests/incoming', { auth: true }),
+        ]);
 
-    const listingsBox = document.getElementById('my-listings');
-    listingsBox.innerHTML = dashboard.listings.map(listingCard).join('');
-    document.getElementById('no-listings').style.display = dashboard.listings.length ? 'none' : 'block';
+        const listingsBox = document.getElementById('my-listings');
+        listingsBox.innerHTML = dashboard.listings.map(listingCard).join('');
+        document.getElementById('no-listings').style.display = dashboard.listings.length ? 'none' : 'block';
 
-    document.getElementById('requests').innerHTML = requestData.requests.map(requestCard).join('');
-    document.getElementById('no-requests').style.display = requestData.requests.length ? 'none' : 'block';
+        document.getElementById('requests').innerHTML = requestData.requests.map(requestCard).join('');
+        document.getElementById('no-requests').style.display = requestData.requests.length ? 'none' : 'block';
 
-    document.getElementById('sold-list').innerHTML = dashboard.sold.map(t => transactionRow(t, 'sold')).join('');
-    document.getElementById('no-sold').style.display = dashboard.sold.length ? 'none' : 'block';
+        document.getElementById('sold-list').innerHTML = dashboard.sold.map(t => transactionRow(t, 'sold')).join('');
+        document.getElementById('no-sold').style.display = dashboard.sold.length ? 'none' : 'block';
 
-    document.getElementById('bought-list').innerHTML = dashboard.bought.map(t => transactionRow(t, 'bought')).join('');
-    document.getElementById('no-bought').style.display = dashboard.bought.length ? 'none' : 'block';
+        document.getElementById('bought-list').innerHTML = dashboard.bought.map(t => transactionRow(t, 'bought')).join('');
+        document.getElementById('no-bought').style.display = dashboard.bought.length ? 'none' : 'block';
 
-    bindActions();
-  } catch (err) {
-    document.querySelector('.container').insertAdjacentHTML('beforeend', `<p class="error-text">${esc(err.message)}</p>`);
-  }
-}
+        bindActions();
+      } catch (err) {
+        document.querySelector('.container').insertAdjacentHTML('beforeend', `<p class="error-text">${esc(err.message)}</p>`);
+      }
+    }
 
-function bindActions() {
-  document.querySelectorAll('.js-delete').forEach(btn => btn.addEventListener('click', async () => {
-    if (!confirm('Delete this book listing? This cannot be undone.')) return;
-    try { await apiCall(`/listings/${btn.dataset.id}`, { method: 'DELETE', auth: true }); loadDashboard(); }
-    catch (err) { alert(err.message); }
-  }));
+    function bindActions() {
+      document.querySelectorAll('.js-delete').forEach(btn => btn.addEventListener('click', async () => {
+        if (!confirm('Delete this book listing? This cannot be undone.')) return;
+        try { await apiCall(`/listings/${btn.dataset.id}`, { method: 'DELETE', auth: true }); loadDashboard(); }
+        catch (err) { alert(err.message); }
+      }));
 
-  document.querySelectorAll('.js-sold').forEach(btn => btn.addEventListener('click', async () => {
-    try { await apiCall(`/listings/${btn.dataset.id}/status`, { method: 'PATCH', body: { status: 'sold' }, auth: true }); loadDashboard(); }
-    catch (err) { alert(err.message); }
-  }));
+      document.querySelectorAll('.js-sold').forEach(btn => btn.addEventListener('click', async () => {
+        try { await apiCall(`/listings/${btn.dataset.id}/status`, { method: 'PATCH', body: { status: 'sold' }, auth: true }); loadDashboard(); }
+        catch (err) { alert(err.message); }
+      }));
 
-  document.querySelectorAll('.js-request').forEach(btn => btn.addEventListener('click', async () => {
-    try {
-      await apiCall(`/listings/requests/${btn.dataset.id}`, { method: 'PATCH', body: { action: btn.dataset.action }, auth: true });
-      loadDashboard();
-    } catch (err) { alert(err.message); }
-  }));
+      document.querySelectorAll('.js-request').forEach(btn => btn.addEventListener('click', async () => {
+        try {
+          await apiCall(`/listings/requests/${btn.dataset.id}`, { method: 'PATCH', body: { action: btn.dataset.action }, auth: true });
+          loadDashboard();
+        } catch (err) { alert(err.message); }
+      }));
 
-  document.querySelectorAll('.js-review').forEach(btn => btn.addEventListener('click', () => openReview(btn.dataset.id)));
-}
+      document.querySelectorAll('.js-review').forEach(btn => btn.addEventListener('click', () => openReview(btn.dataset.id)));
+    }
 
-async function openReview(transactionId) {
-  const rating = prompt('Rating for the seller (1-5):');
-  if (rating === null) return;
-  const comment = prompt('Optional comment:') || '';
-  try {
-    await apiCall('/reviews', { method: 'POST', body: { transactionId, rating: Number(rating), comment }, auth: true });
-    alert('Review submitted. Thank you!');
+    async function openReview(transactionId) {
+      const rating = prompt('Rating for the seller (1-5):');
+      if (rating === null) return;
+      const comment = prompt('Optional comment:') || '';
+      try {
+        await apiCall('/reviews', { method: 'POST', body: { transactionId, rating: Number(rating), comment }, auth: true });
+        alert('Review submitted. Thank you!');
+        loadDashboard();
+      } catch (err) { alert(err.message); }
+    }
+
     loadDashboard();
-  } catch (err) { alert(err.message); }
-}
-
-loadDashboard();
-</script>
+  </script>
 </body>
+
 </html>
