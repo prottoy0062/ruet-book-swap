@@ -69,6 +69,8 @@
     function listingCard(listing) {
       const photo = resolvePhotoUrl(listing.photos?.[0] || '');
       const sold = listing.status === 'sold';
+      // Added T lookup for listing type
+      const T = TYPE_TEXT[listing.type] || TYPE_TEXT.sale;
       return `
     <div class="listing-card dashboard-card">
       ${photo ? `<img class="photo" src="${esc(photo)}" alt="${esc(listing.title)}">` : `<div class="photo"></div>`}
