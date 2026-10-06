@@ -24,6 +24,11 @@
     const params = new URLSearchParams(window.location.search);
     const listingId = params.get('id');
     const content = document.getElementById('content');
+    const TYPE_TEXT = {
+      sale: { btn: 'Request to buy', done: 'SOLD', doneMsg: 'This book has been sold.', mark: 'Mark sold' },
+      exchange: { btn: 'Request to exchange', done: 'EXCHANGED', doneMsg: 'This book has been exchanged.', mark: 'Mark exchanged' },
+      donation: { btn: 'Request this book', done: 'DONATED', doneMsg: 'This book has been donated.', mark: 'Mark donated' },
+    };
     const esc = (value) => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c]));
 
     async function loadReviews(sellerId) {
@@ -58,9 +63,10 @@
           : '<div class="photo" style="height:220px;border-radius:6px;background:#ece4d3;"></div>';
 
         const priceLine = listing.type === 'sale' ? `<p style="font-size:1.3rem;">৳${esc(listing.price)}</p>` : `<p style="font-size:1.1rem;text-transform:capitalize;">${esc(listing.type)}</p>`;
-        const statusTag = sold ? '<span class="tag sold">SOLD</span>' : `<span class="tag ${esc(listing.type)}">${esc(listing.type)}</span>`;
-        const buyButton = (!isOwner && !sold && listing.type === 'sale' && isLoggedIn()) ? '<button id="buy-btn">Request to buy</button>' : '';
-        const loginHint = (!isLoggedIn() && !sold && listing.type === 'sale') ? '<p class="muted">Log in to request this book.</p>' : '';
+        const T = TYPE_TEXT[listing.type] || TYPE_TEXT.sale;
+        const statusTag = sold ? `<span class="tag sold">${T.done}</span>` : `<span class="tag ${esc(listing.type)}">${esc(listing.type)}</span>`;
+        const buyButton = (!isOwner && !sold && isLoggedIn()) ? `<button id="buy-btn">${T.btn}</button>` : '';
+        const loginHint = (!isLoggedIn() && !sold) ? '<p class="muted">Log in to request this book.</p>' : '';
 
         content.innerHTML = `
       <div class="detail-grid">
