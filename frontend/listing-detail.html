@@ -90,7 +90,7 @@
           ${isOwner ? `<div class="card-actions"><button id="sold-btn" class="secondary">${sold ? 'Mark available' : T.mark}</button><button id="delete-btn" class="danger-btn">Delete listing</button></div>` : ''}
 
           <div class="contact-box" id="contact-box">
-            ${sold ? '<p style="margin:0;">This book has been sold.</p>' : '<button id="reveal-btn">Tap to reveal seller contact</button>'}
+            ${sold ? `<p style="margin:0;">${T.doneMsg}</p>` : '<button id="reveal-btn">Tap to reveal seller contact</button>'}
           </div>
         </div>
       </div>
