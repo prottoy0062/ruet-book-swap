@@ -29,25 +29,22 @@
       <div id="no-listings" class="empty-state" style="display:none;">You have not listed any books yet.</div>
     </section>
 
-    <!-- Updated section heading and empty state text -->
     <section class="dashboard-section">
-      <h2>Requests</h2>
+      <h2>Buy requests</h2>
       <div id="requests"></div>
-      <div id="no-requests" class="empty-state" style="display:none;">No pending requests.</div>
+      <div id="no-requests" class="empty-state" style="display:none;">No pending buy requests.</div>
     </section>
 
-    <!--  Updated section heading and empty state text -->
     <section class="dashboard-section">
-      <h2>Books I sold / exchanged / donated</h2>
+      <h2>Books I sold</h2>
       <div id="sold-list" class="history-list"></div>
-      <div id="no-sold" class="empty-state" style="display:none;">Nothing completed yet.</div>
+      <div id="no-sold" class="empty-state" style="display:none;">No completed sales yet.</div>
     </section>
 
-    <!--  Updated section heading and empty state text -->
     <section class="dashboard-section">
-      <h2>Books I bought / exchanged / received</h2>
+      <h2>Books I bought</h2>
       <div id="bought-list" class="history-list"></div>
-      <div id="no-bought" class="empty-state" style="display:none;">Nothing received yet.</div>
+      <div id="no-bought" class="empty-state" style="display:none;">No completed purchases yet.</div>
     </section>
   </div>
 
@@ -60,17 +57,9 @@
     const money = (value) => value ? `৳${value}` : '—';
     const dateText = (value) => new Date(value).toLocaleString('en-BD', { dateStyle: 'medium', timeStyle: 'short' });
 
-    //  Added TYPE_TEXT object above dateText
-    const TYPE_TEXT = {
-      sale: { done: 'SOLD', mark: 'Mark sold', out: 'Sold to', in: 'Bought from' },
-      exchange: { done: 'EXCHANGED', mark: 'Mark exchanged', out: 'Exchanged with', in: 'Exchanged with' },
-      donation: { done: 'DONATED', mark: 'Mark donated', out: 'Donated to', in: 'Received from' },
-    };
     function listingCard(listing) {
       const photo = resolvePhotoUrl(listing.photos?.[0] || '');
       const sold = listing.status === 'sold';
-      // Added T lookup for listing type
-      const T = TYPE_TEXT[listing.type] || TYPE_TEXT.sale;
       return `
     <div class="listing-card dashboard-card">
       ${photo ? `<img class="photo" src="${esc(photo)}" alt="${esc(listing.title)}">` : `<div class="photo"></div>`}
@@ -91,8 +80,6 @@
     function requestCard(request) {
       const listing = request.listingId;
       const buyer = request.buyerId;
-      // Added kind definition
-      const kind = listing?.type || 'sale';
       return `<div class="request-card">
     <div>
       <strong>${esc(listing?.title || 'Book')}</strong>
@@ -108,8 +95,6 @@
 
     function transactionRow(t, direction) {
       const person = direction === 'sold' ? t.buyerId : t.sellerId;
-      // Added T lookup for transaction type
-      const T = TYPE_TEXT[t.type] || TYPE_TEXT.sale;
       const reviewButton = direction === 'bought' ? `<button class="btn-small secondary js-review" data-id="${t._id}">Review seller</button>` : '';
       return `<div class="history-row">
     <div>
