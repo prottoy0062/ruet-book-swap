@@ -108,6 +108,8 @@
 
     function transactionRow(t, direction) {
       const person = direction === 'sold' ? t.buyerId : t.sellerId;
+      // Added T lookup for transaction type
+      const T = TYPE_TEXT[t.type] || TYPE_TEXT.sale;
       const reviewButton = direction === 'bought' ? `<button class="btn-small secondary js-review" data-id="${t._id}">Review seller</button>` : '';
       return `<div class="history-row">
     <div>
