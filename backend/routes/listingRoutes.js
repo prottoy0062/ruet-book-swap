@@ -107,7 +107,7 @@ router.get('/mine', requireAuth, async (req, res) => {
 router.get('/requests/incoming', requireAuth, async (req, res) => {
   try {
     const requests = await BuyRequest.find({ sellerId: req.user.userId, status: 'pending' })
-      .populate('listingId', 'title price photos status')
+      .populate('listingId', 'title price photos status type')
       .populate('buyerId', 'name roll department year')
       .sort({ createdAt: -1 });
     res.json({ requests });
@@ -122,14 +122,13 @@ router.post('/:id/buy-request', requireAuth, async (req, res) => {
     const listing = await BookListing.findById(req.params.id);
     if (!listing) return res.status(404).json({ message: 'Listing not found' });
     if (listing.status !== 'available') return res.status(400).json({ message: 'This book is no longer available' });
-    if (listing.type !== 'sale') return res.status(400).json({ message: 'Only sale listings can receive buy requests' });
     if (listing.sellerId.toString() === req.user.userId) return res.status(400).json({ message: 'You cannot request your own book' });
 
     const existing = await BuyRequest.findOne({ listingId: listing._id, buyerId: req.user.userId });
     if (existing) return res.status(400).json({ message: `You already have a ${existing.status} request for this book` });
 
     const request = await BuyRequest.create({ listingId: listing._id, buyerId: req.user.userId, sellerId: listing.sellerId });
-    res.status(201).json({ message: 'Buy request sent to the seller', request });
+    res.status(201).json({ message: 'Request sent to the owner', request });
   } catch (err) {
     console.error('Buy request error:', err);
     res.status(500).json({ message: 'Could not send buy request', error: err.message });
@@ -165,7 +164,8 @@ router.patch('/requests/:id', requireAuth, async (req, res) => {
       bookTitle: listing.title,
       sellerId: listing.sellerId,
       buyerId: request.buyerId,
-      price: listing.price,
+      price: listing.type === 'sale' ? listing.price : 0,
+      type: listing.type,
       purchasedAt: new Date(),
     });
 
